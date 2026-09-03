@@ -1,4 +1,6 @@
 node_modules/
 keys/
 .envs
-
+postgres/
+cert/
+/src/generated/prisma
