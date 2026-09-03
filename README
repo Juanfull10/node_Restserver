@@ -1,4 +1,107 @@
-# Dev
+# REST Server - Node + Express + Prisma 7 + PostgreSQL
 
-1. Clonar el .env.template y crear el .env 
-2. Ejecutar el comando `docker compose up -d`
+API REST construida con Express, TypeScript y Prisma ORM v7, usando PostgreSQL como base de datos.
+
+## Requisitos previos
+
+- Node.js `^20.19 || ^22.12 || >=24.0`
+- Docker y Docker Compose (para levantar la base de datos)
+
+## Instalación
+
+1. Clona el repositorio e instala dependencias:
+
+```bash
+   npm install
+```
+
+2. Copia el archivo de variables de entorno:
+
+```bash
+   cp .env.template .env
+```
+
+3. Levanta la base de datos con Docker:
+
+```bash
+   docker compose up -d
+```
+
+4. Genera el cliente de Prisma:
+
+```bash
+   npx prisma generate
+```
+
+5. Corre las migraciones:
+
+```bash
+   npx prisma migrate dev
+```
+
+6. Levanta el servidor en modo desarrollo:
+
+```bash
+   npm run dev
+```
+
+## ⚠️ Notas importantes sobre Prisma 7
+
+Este proyecto usa **Prisma 7**, que trae cambios importantes respecto a versiones anteriores:
+
+- **El driver adapter es obligatorio.** `PrismaClient` ya no acepta conectarse solo con la URL del `.env` — hay que instanciar un adapter (`@prisma/adapter-pg` en este caso) y pasárselo al cliente:
+
+```ts
+  import { PrismaClient } from "../../generated/prisma/client";
+  import { PrismaPg } from "@prisma/adapter-pg";
+  import { envs } from "../../config/envs";
+
+  const adapter = new PrismaPg({
+    connectionString: envs.POSTGRES_URL,
+  });
+
+  export const prisma = new PrismaClient({ adapter });
+```
+
+- **`datasourceUrl` y `datasources` fueron eliminados** del constructor de `PrismaClient`. La única forma de pasar la conexión es vía el adapter.
+
+- **El cliente se genera en una ruta local del proyecto**, no en `node_modules/@prisma/client`. Revisa el `output` en `prisma/schema.prisma`:
+
+```prisma
+  generator client {
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
+  }
+```
+
+  Por eso el import correcto es relativo: `from "../../generated/prisma/client"`, no `from "@prisma/client"`.
+
+- **`prisma` y `@prisma/client` deben tener la misma versión mayor.** Si ves errores como `Cannot find module '@prisma/client/runtime/library'`, revisa que ambos estén en `^7.x.x` en tu `package.json`.
+
+- Si cambias el `schema.prisma`, siempre corre `npx prisma generate` de nuevo.
+
+## Scripts disponibles
+
+| Script          | Descripción                                      |
+|-----------------|---------------------------------------------------|
+| `npm run dev`   | Levanta el servidor con recarga automática        |
+| `npm run build` | Compila TypeScript a `dist/`                       |
+| `npm run start` | Compila y levanta el servidor en modo producción  |
+
+## Variables de entorno
+
+| Variable            | Descripción                          |
+|---------------------|---------------------------------------|
+| `PORT`               | Puerto del servidor                   |
+| `PUBLIC_PATH`        | Carpeta de archivos públicos          |
+| `POSTGRES_URL`        | URL de conexión completa a Postgres   |
+| `POSTGRES_USER`       | Usuario de la base de datos           |
+| `POSTGRES_DB`         | Nombre de la base de datos            |
+| `POSTGRES_PORT`       | Puerto de Postgres                    |
+| `POSTGRES_PASSWORD`   | Password de Postgres                  |
+| `NODE_ENV`            | Entorno (`development` / `production`)|
+
+## Troubleshooting común
+
+- **`Class constructor PrismaClient cannot be invoked without 'new'`**: revisa que no haya mezcla ESM/CJS entre `ts-node-dev` y el cliente generado. Considera migrar a `tsx`.
+- **`Property 'todo' does not exist on type 'PrismaPg'`**: estás exportando el `adapter` en vez del `PrismaClient`. Revisa `src/data/postgres/index.ts`.
