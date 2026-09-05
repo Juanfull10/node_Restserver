@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { prisma } from "../../data/postgres";
+import { CreateTodoDto, UpdateTodoDto } from "../../domain";
 
 
 
@@ -50,12 +51,18 @@ export class TodosController{
         }
 
         public createTodo= async (req:Request,res:Response) => {
-            const {text}=req.body;
-            if(!text) return res.status(400).json({error:'texto property is required'});
+
+
+            const [error,createTodoDto]= CreateTodoDto.create(req.body);
+
+            if(error) return res.status(400).json({error});
 
             const todo= await prisma.todo.create({
-                data:{text}
+                data:createTodoDto!
             })
+
+            res.json(todo);
+
             /*
             const todo= prisma.todo.create({
                 data:{text},
@@ -67,18 +74,36 @@ export class TodosController{
                 createAt:null
             }
             todos.push(newTodo);
-
-           */ res.json(todo);
+            res.json(todo);
+           */ 
         }
 
 
         public updateTodo=async(req:Request,res:Response)=>{
 
            const id= +(req.params.id ?? '');
-         
+           const [error,updateTodoDto]= UpdateTodoDto.create({...req.body,id})
             if(isNaN(id)){ return res.status(400).json({error:`Id number is not a number`})}
 
-            const {text,createAt}=req.body;
+
+            if(error) return res.status(400).json({error});
+
+            const todo= await prisma.todo.findFirst(
+                {
+                    where:{id}
+                }
+            );
+
+            if(!todo)return res.status(400).json({error:`Todo with id ${id} not found`});
+
+
+            const updateTodo= await prisma.todo.update({
+                where:{id},
+                data:updateTodoDto!.values
+            });
+
+            res.json(updateTodo);
+            /*const {text,createAt}=req.body;
              const data: { text?: string; createAt?: Date | null } = {};
    
              if (text) data.text = text;
@@ -102,7 +127,7 @@ export class TodosController{
                 return res.status(404).json({ error: `TODO with id ${id} not found` });
             }
 
-            /*
+        
             const todo= todos.find(todo=>todo.id===id);
             if(!todo) {
                 return res.status(404).json({ error: `TODO with id ${id} not found` });
@@ -117,7 +142,7 @@ export class TodosController{
 
                
 
-           return res.json(todo); */
+           return res.json(todo); */    
 
         }
 
