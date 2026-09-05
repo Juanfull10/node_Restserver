@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { prisma } from "../../data/postgres";
 
 
+
  const todos= [
                 {id:1,text:'Buy milk',createAt:new Date()},
                 {id:2,text:'Buy Breads',createAt:new Date()},

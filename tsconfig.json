@@ -4,37 +4,19 @@
     "src/**/*.ts"
     ],
   "compilerOptions": {
-    // File Layout
-    "rootDir": "src",
+     "rootDir": "src",
     "outDir": "dist/",
 
-    
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "commonjs",
+    "module": "commonjs",// ✨ AÑADE ESTA LÍNEA AQUÍ
     "target": "esnext",
     "types": ["node"],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
 
-    // Other Outputs
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 
-    // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
 
     "strict": true,
     "isolatedModules": true,
@@ -42,14 +24,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "esModuleInterop": true
-    // Recommended Options
-    /*
-    "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true,*/
   }
 }
