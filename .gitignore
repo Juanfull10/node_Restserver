@@ -7,4 +7,4 @@ keys/
 
 dist/
 
-
+/src/generated/prisma
