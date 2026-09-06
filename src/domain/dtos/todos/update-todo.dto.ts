@@ -17,12 +17,14 @@ export class UpdateTodoDto{
 
         return returnObj;
     }
+
     static create(props:{[key:string]:any}):[string | undefined, UpdateTodoDto | undefined]{
 
         const {id,text,createAt}= props;
         let newCreateAt= createAt;
 
         if(!id||isNaN(Number(id)))return ['id must be a valid number',undefined];
+
         if(createAt){
             newCreateAt= new Date(createAt)
             if(newCreateAt.toString()==='Invalid Date'){
@@ -32,8 +34,7 @@ export class UpdateTodoDto{
 
 
 
-    
-
         return [undefined, new UpdateTodoDto(id,text,newCreateAt)];
+        
     }
 }
